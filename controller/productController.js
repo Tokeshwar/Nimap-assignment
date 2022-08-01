@@ -53,7 +53,7 @@ const createProduct = async function (req, res) {
     }
 }
 
-const getProductById = async (req, res) => {
+const getProductById = async function (req, res)  {
 
     try {
         const productId = req.params.productId;
@@ -62,7 +62,7 @@ const getProductById = async (req, res) => {
             return res.status(404).send({ status: false, message: "Invalid Id..!!" })
         }
 
-        const product = await productModel.findOne({ _id: productId, isDeleted: false });
+        const product = await productModel.findById({ _id: productId, isDeleted: false });
         if (!product) return res.status(400).send({ status: false, message: "Product is deleted..!!" })
 
         return res.status(200).send({ status: true, message: "Success", data: product })
@@ -72,7 +72,7 @@ const getProductById = async (req, res) => {
     }
 }
 
-const updateProduct = async (req, res) => {
+const updateProduct = async function (req, res) {
 
     try {
         let data = req.body
@@ -108,10 +108,8 @@ const deleteProduct = async function (req, res) {
         if (!product) {
             return res.status(404).send({ status: false, message: "Product not found" })
         }
-        if (product.isDeleted == true) {
-            return res.status(400).send({ status: false, message: "Product is already deleted" })
-        }
-        const delProduct = await productModel.findByIdAndUpdate(productId, { isDeleted: true }, { new: true })
+
+        const delProduct = await productModel.findByIdAndUpdate({ _id: productId, isDeleted: false }, { isDeleted: true }, { new: true })
         return res.status(200).send({ status: true, message: "success", data: delProduct })
 
     } catch (error) {

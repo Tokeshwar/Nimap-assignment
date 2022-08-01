@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const categoryModel = require('../model/categoryModel');
+const productModel = require('../model/productModel');
 
 const isValid = function (value) {
     if (typeof value === 'undefined' || value === null) return false
@@ -38,7 +39,7 @@ const getCategorybyid = async function (req, res) {
             return res.status(404).send({ status: false, message: "Invalid Id..!!" })
         }
 
-        const category = await categoryModel.findOne({ _id: categoryId })
+        const category = await categoryModel.findById({ _id: categoryId })
         if (!category) { return res.status(404).send({ status: false, message: "No data found" }) }
 
         return res.status(200).send({ status: true, data: category })
@@ -80,7 +81,10 @@ const deleteCategory = async function (req, res) {
         if (category.isDeleted == true) {
             return res.status(400).send({ status: false, message: "Category is already deleted..!!" })
         }
-        const delCategory = await categoryModel.findByIdAndUpdate({ _id: categoryId, isDeleted: false }, { isDeleted: true }, { new: true })
+
+        let delCategory = await categoryModel.findOneAndUpdate({ _id: categoryId }, { $set: { isDeleted: true } }, { new: true })
+
+        let delProduct = await productModel.findOneAndUpdate({ bookId: categoryId }, { $set: { isDeleted: true } }, { new: true })
 
         return res.status(200).send({ status: true, message: "success", data: delCategory })
     } catch (error) {
